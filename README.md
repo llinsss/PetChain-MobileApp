@@ -48,6 +48,8 @@ Offline Storage: AsyncStorage or SQLite
 
 Styling: Styled Components or React Native Paper
 
+Smart Contracts: Rust (Stellar)
+
 Testing: Jest and React Native Testing Library
 
 Contributing
