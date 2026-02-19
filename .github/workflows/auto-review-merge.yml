@@ -1,0 +1,93 @@
+name: Auto Review and Merge Backend PRs
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - 'backend/**'
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  auto-review:
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.draft == false
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check if PR only modifies backend folder
+        id: check_files
+        run: |
+          FILES=$(git diff --name-only origin/${{ github.base_ref }}...HEAD)
+          NON_BACKEND=$(echo "$FILES" | grep -v '^backend/' || true)
+          
+          if [ -z "$NON_BACKEND" ]; then
+            echo "backend_only=true" >> $GITHUB_OUTPUT
+          else
+            echo "backend_only=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Check file structure
+        id: check_structure
+        if: steps.check_files.outputs.backend_only == 'true'
+        run: |
+          FILES=$(git diff --name-only origin/${{ github.base_ref }}...HEAD)
+          VALID=true
+          
+          for file in $FILES; do
+            if [[ ! "$file" =~ ^backend/(services|models|utils|config|types|middleware|tests)/.*\.(ts|js|md)$ ]]; then
+              VALID=false
+              break
+            fi
+          done
+          
+          echo "structure_valid=$VALID" >> $GITHUB_OUTPUT
+
+      - name: Auto-approve and comment
+        if: steps.check_files.outputs.backend_only == 'true' && steps.check_structure.outputs.structure_valid == 'true'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            await github.rest.pulls.createReview({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number,
+              event: 'APPROVE',
+              body: '✅ **Auto-Review Passed!**\n\nThis PR meets all requirements:\n- ✅ Only modifies backend folder\n- ✅ Files are in correct subdirectories\n- ✅ Valid TypeScript/JavaScript/Markdown files\n\nMerging automatically...'
+            });
+
+      - name: Auto-merge PR
+        if: steps.check_files.outputs.backend_only == 'true' && steps.check_structure.outputs.structure_valid == 'true'
+        uses: pascalgn/automerge-action@v0.16.2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MERGE_METHOD: squash
+
+      - name: Rejection comment
+        if: steps.check_files.outputs.backend_only != 'true' || steps.check_structure.outputs.structure_valid != 'true'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            let reasons = [];
+            if ('${{ steps.check_files.outputs.backend_only }}' !== 'true') {
+              reasons.push('❌ PR modifies files outside backend folder');
+            }
+            if ('${{ steps.check_structure.outputs.structure_valid }}' !== 'true') {
+              reasons.push('❌ Files must be in: services, models, utils, config, types, middleware, or tests subdirectories');
+              reasons.push('❌ Only .ts, .js, or .md files allowed');
+            }
+            
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: `⚠️ **Auto-Review Failed**\n\n${reasons.join('\n')}\n\n**Requirements:**\n- Only modify files in \`backend/\` folder\n- Place files in correct subdirectories\n- Use TypeScript (.ts) files`
+            });

@@ -10,7 +10,10 @@ This app integrates seamlessly with the PetChain Web Platform (for vet hospitals
 
 ## Important Note for Contributors
 
-**UI/UX designs are not available yet.** We're focusing exclusively on backend logic, API integration, and infrastructure during this phase. All available issues are in the `backend/ folder. Please do not work on UI components or screens at this time.
+**UI/UX designs are not available yet.** We're focusing exclusively on backend logic, API integration, and infrastructure during this phase. All available issues are in the `backend/ folder.
+ Please do not work on UI components or screens at this time.
+
+**IMPORTANT: THIS IS CLIENT-SIDE MOBILE APP CODE, NOT SERVER-SIDE BACKEND CODE.** The "backend" folder name refers to the app's logic layer (services, models, utilities) that runs on the mobile device and communicates with the actual NestJS backend API. All code will be written in **TypeScript** for React Native.
 
 ---
 
