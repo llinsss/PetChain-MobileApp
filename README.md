@@ -98,10 +98,10 @@ Pick any issue that interests you and start contributing!
 ### Getting Started
 
 **Prerequisites:**
-- Node.js (v16 or higher)
-- React Native CLI or Expo CLI
-- Android Studio or Xcode (for emulators)
+- Node.js (v18 or higher)
+- npm or yarn
 - Git
+- (Optional) Android Studio or Xcode for mobile development
 
 **Setup:**
 ```bash
@@ -114,16 +114,21 @@ npm install
 # or
 yarn install
 
-# Run on iOS
-npm run ios
-# or
-yarn ios
+# Copy environment variables
+cp .env.example .env
 
-# Run on Android
-npm run android
+# Run tests
+npm test
 # or
-yarn android
+yarn test
+
+# Lint code
+npm run lint
+# or
+yarn lint
 ```
+
+**Note:** This project is currently in the backend/logic phase. Mobile app compilation (iOS/Android) will be set up after core services are implemented.
 
 ## Tech Stack
 
@@ -139,20 +144,28 @@ yarn android
 - **Smart Contracts**: Rust (Stellar)
 - **Testing**: Jest and React Native Testing Library
 
-## Project Structure (Proposed)
+## Project Structure
 
 ```
 PetChain-MobileApp/
 ├── src/
 │   ├── services/       # API calls, authentication, blockchain
-│   ├── store/          # State management (Redux/Context)
 │   ├── models/         # Data models and TypeScript interfaces
 │   ├── utils/          # Helper functions, validators, formatters
-│   ├── hooks/          # Custom React hooks
 │   ├── config/         # App configuration, constants
-│   └── types/          # TypeScript type definitions
+│   ├── types/          # TypeScript type definitions
+│   └── hooks/          # Custom React hooks
+├── backend/            # Issue files for contributors
+│   ├── services/       # Issues for API services
+│   ├── models/         # Issues for data models
+│   ├── utils/          # Issues for utilities
+│   ├── config/         # Issues for configuration
+│   ├── types/          # Issues for TypeScript types
+│   ├── middleware/     # Issues for middleware
+│   └── tests/          # Issues for testing
 ├── __tests__/          # Unit and integration tests
-└── docs/               # API docs, architecture guides
+├── .github/            # GitHub Actions workflows
+└── App.tsx             # Main app entry point
 ```
 
 ## Related Repositories
