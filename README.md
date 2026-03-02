@@ -44,7 +44,7 @@ This app integrates seamlessly with the PetChain Web Platform (for vet hospitals
 
 ###  Available Issues
 
-**Check the `backend/` folder for 19 available issues!** Each issue file contains:
+**Check the `backend/` folder for 27 available issues!** Each issue file contains:
 - Clear description and requirements
 - File path to create
 - Acceptance criteria
